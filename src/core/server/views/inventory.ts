@@ -4,21 +4,21 @@ import { ITEM_TYPE } from '../../shared/enums/itemTypes';
 import { View_Events_Inventory } from '../../shared/enums/views';
 import { DroppedItem, Item } from '../../shared/interfaces/item';
 import { isFlagEnabled } from '../../shared/utility/flags';
-import { playerFuncs } from '../extensions/Player';
+import { playerFuncs } from '../extensions/extPlayer';
 import { sha256Random } from '../utility/encryption';
 import '../effects/heal';
 import '../effects/vehicleRepair';
 import { ATHENA_EVENTS_PLAYER } from '../../shared/enums/athenaEvents';
 import { stripCategory } from '../utility/category';
-import { CategoryData } from '../interface/CategoryData';
+import { CategoryData } from '../interface/iCategoryData';
 import { deepCloneObject } from '../../shared/utility/deepCopy';
 import { distance2d } from '../../shared/utility/vector';
 import { INVENTORY_RULES } from '../../shared/enums/inventoryRules';
 import { SLOT_TYPE } from '../../shared/enums/inventorySlotTypes';
 import { ServerItemController } from '../streamers/item';
 import { ServerObjectController } from '../streamers/object';
-import '../systems/item';
 import { PlayerEvents } from '../events/playerEvents';
+import { ItemEffects } from '../systems/itemEffects';
 
 const GROUND_ITEMS: Array<DroppedItem> = [];
 
@@ -627,7 +627,7 @@ export class InventoryController {
         }
 
         if (item.data && item.data.event) {
-            alt.emit(item.data.event, player, item, slot);
+            ItemEffects.invoke(player, item, INVENTORY_TYPE.INVENTORY);
             playerFuncs.emit.sound2D(player, 'item_use', Math.random() * 0.45 + 0.1);
         }
     }

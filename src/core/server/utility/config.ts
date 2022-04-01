@@ -1,5 +1,5 @@
 import * as alt from 'alt-server';
-import { IConfig } from '../interface/IConfig';
+import { IConfig } from '../interface/iConfig';
 import fs from 'fs';
 import logger from './athenaLogger';
 import net from 'net';
@@ -37,6 +37,10 @@ export default {
         }
 
         const file = fs.readFileSync(DefaultServerCFGName).toString();
+        if (file.includes(`env: "dev"`)) {
+            config.USE_DEV_MODE = true;
+        }
+
         if (file.includes('vue-athena')) {
             try {
                 const sock = net.createConnection(DefaultVitePort, DefaultViteServer, () => {
@@ -57,10 +61,23 @@ export default {
         firstRun = false;
         return config;
     },
-    getViteServer() {
+    getViteServer(): string {
         return `http://${DefaultViteServer}:${DefaultVitePort}`;
     },
-    getVueDebugMode() {
+    getVueDebugMode(): boolean {
         return isVueDebug;
+    },
+    getAthenaVersion(): string {
+        const file = fs.readFileSync('package.json').toString();
+        let data: { version: string };
+
+        try {
+            data = JSON.parse(file);
+        } catch (err) {
+            console.warn(`Failed to read package.json. Run your package.json through a JSON linter. Google it.`);
+            process.exit(1);
+        }
+
+        return data.version;
     },
 };

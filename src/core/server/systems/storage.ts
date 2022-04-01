@@ -1,8 +1,6 @@
 import { IStorage } from '../../shared/interfaces/iStorage';
 import Database from '@stuyk/ezmongodb';
-import { Collections } from '../interface/DatabaseCollections';
-
-import '../views/storage';
+import { Collections } from '../interface/iDatabaseCollections';
 
 let isInUse: { [storage_id: string]: boolean } = {};
 
@@ -11,7 +9,7 @@ export class StorageSystem {
      * Create a storage box and return the full storage Document.
      * @static
      * @param {IStorage} storage
-     * @return {*}  {IStorage}
+     * @return {IStorage}
      * @memberof StorageSystem
      */
     static async create(storage: IStorage): Promise<IStorage> {

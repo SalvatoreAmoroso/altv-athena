@@ -16,9 +16,9 @@ import { IVehicle } from '../../shared/interfaces/iVehicle';
 import { isFlagEnabled } from '../../shared/utility/flags';
 import { distance } from '../../shared/utility/vector';
 import { DEFAULT_CONFIG } from '../athena/main';
-import { playerFuncs } from '../extensions/Player';
-import VehicleFuncs from '../extensions/VehicleFuncs';
-import { Collections } from '../interface/DatabaseCollections';
+import { playerFuncs } from '../extensions/extPlayer';
+import VehicleFuncs from '../extensions/vehicleFuncs';
+import { Collections } from '../interface/iDatabaseCollections';
 import Logger from '../utility/athenaLogger';
 import { getPlayersByGridSpace } from '../utility/filters';
 import { getClosestEntity } from '../utility/vector';
@@ -30,9 +30,6 @@ import IVehicleRuleData from '../../shared/interfaces/iVehicleRuleData';
 import SystemRules from './rules';
 import { LocaleController } from '../../shared/locale/locale';
 import { LOCALE_KEYS } from '../../shared/locale/languages/keys';
-import '../views/paintshop';
-import '../views/dealership';
-import './fuel';
 import { VehicleEvents } from '../events/vehicleEvents';
 
 /**
@@ -124,6 +121,17 @@ export class VehicleSystem {
                 if (Date.now() > lastUseDate) {
                     continue;
                 }
+            }
+
+            if (!vehicle.model) {
+                alt.logWarning(
+                    `Vehicle with ID: ${vehicle._id.toString()} is missing multiple properties. Skipped during initialization.`,
+                );
+                continue;
+            }
+
+            if (!vehicle.position) {
+                continue;
             }
 
             // Skip New Vehicles
@@ -307,16 +315,6 @@ export class VehicleSystem {
 
         if (!VehicleFuncs.hasOwnership(player, player.vehicle)) {
             playerFuncs.emit.notification(player, LocaleController.get(LOCALE_KEYS.VEHICLE_NO_KEYS));
-            return;
-        }
-
-        if (!player.vehicle.engineOn && !VehicleFuncs.hasFuel(player.vehicle)) {
-            playerFuncs.emit.notification(player, LocaleController.get(LOCALE_KEYS.VEHICLE_NO_FUEL));
-            return;
-        }
-
-        if (player.vehicle.isRefueling) {
-            playerFuncs.emit.notification(player, LocaleController.get(LOCALE_KEYS.VEHICLE_REFUEL_INCOMPLETE));
             return;
         }
 
